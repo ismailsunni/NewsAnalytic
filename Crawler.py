@@ -71,8 +71,17 @@ def load_pickle(filepath):
 def main():
     if not os.path.exists(DATA_DIRECTORY):
         os.mkdir(DATA_DIRECTORY)
-    public_figures = ['jokowi', 'wiranto']
-    sites = ['kompas.com', 'detik.com', 'okezone.com', 'vivanews.com']
+    public_figures = ['jokowi',
+                      'wiranto',
+                      'sby',
+                      'anis matta',
+                      'aburizal bakrie',
+                      'hatta rajasa',
+                      'jusuf kalla',
+                      'prabowo']
+    sites = ['detik.com', 'kompas.com', 'viva.co.id', 'okezone.com',
+             'tribunnews.com', 'tempo.co', 'inilah.com', 'republika.co.id',
+             'antaranews.com', 'metrotvnews.com', 'liputan6.com']
     for public_figure in public_figures:
         for site in sites:
             print 'Search ', public_figure, 'in', site
@@ -104,7 +113,7 @@ def main():
                 news_titles.append(news_title)
             filename = 'newstitles_' + filename
             filepath = os.path.join(DATA_DIRECTORY, filename)
-            save_flag = save_pickle(results, filepath)
+            save_flag = save_pickle(news_titles, filepath)
             if  save_flag is None:
                 print 'Save to', filepath, 'failed'
 
