@@ -19,8 +19,11 @@ def get_page_soup(url):
     """Download a page and return a BeautifulSoup object of the html
     """
     try:
-        content = urllib2.urlopen(url).read()
+        content = urllib2.urlopen(url, timeout=5).read()
         return BeautifulSoup(content)
+    except urllib2.URLError, e:
+        print e
+        return None
     except Exception, e:
         print e
         return None
@@ -38,7 +41,7 @@ def search_all(query, site=''):
         gs.results_per_page = 100
         while True:
             tmp = gs.get_results()
-            if not tmp: # no more results were found
+            if not tmp:  # no more results were found
                 break
             results.extend(tmp)
         return results
@@ -71,7 +74,7 @@ def load_pickle(filepath):
 def main():
     if not os.path.exists(DATA_DIRECTORY):
         os.mkdir(DATA_DIRECTORY)
-    public_figures = ['jokowi',
+    public_figures = [#'jokowi',
                       'wiranto',
                       'sby',
                       'anis matta',
@@ -81,41 +84,53 @@ def main():
                       'prabowo']
     sites = ['detik.com', 'kompas.com', 'viva.co.id', 'okezone.com',
              'tribunnews.com', 'tempo.co', 'inilah.com', 'republika.co.id',
-             'antaranews.com', 'metrotvnews.com', 'liputan6.com']
+             'antaranews.com', 'metrotvnews.com']
     for public_figure in public_figures:
         for site in sites:
             print 'Search ', public_figure, 'in', site
             # Get all result from Google search
-            results = search_all(public_figure, site)
-
-            print 'We got', len(results),
-
-            # Save to external file, to save a rate limit from Google
+            # check first if exist
             filename = public_figure + '_' + site.replace('.', '') + '.pickle'
             filepath = os.path.join(DATA_DIRECTORY, filename)
+            if not os.path.exists(filepath):
+                results = search_all(public_figure, site)
+            else:
+                print 'Search result is already existed'
+                results = load_pickle(filepath)
+
+            print 'We got', len(results)
+
+            # Save to external file, to save a rate limit from Google
             save_flag = save_pickle(results, filepath)
-            if  save_flag is None:
+            if save_flag is None:
                 print 'Save to', filepath, 'failed'
 
-            # Get all real title from the real site and create NewsTitle object
-            news_titles = []
-            for result in results:
-                title = ''
-                try:
-                    print 'Get result from ', result.url
-                    soup = get_page_soup(result.url)
-                    # noinspection PyUnresolvedReferences
-                    title = soup.title.string.encode()
-                except Exception, e:
-                    print e
-                news_title = NewsTitle(title, public_figure, site,
-                                       result.url, result.title, result.desc)
-                news_titles.append(news_title)
             filename = 'newstitles_' + filename
             filepath = os.path.join(DATA_DIRECTORY, filename)
-            save_flag = save_pickle(news_titles, filepath)
-            if  save_flag is None:
-                print 'Save to', filepath, 'failed'
+            if not os.path.exists(filepath):
+                # Get all real title from the real site and create NewsTitle
+                # object
+                news_titles = []
+                i = 0
+                for result in results:
+                    i += 1
+                    title = ''
+                    try:
+                        print i, 'Get result from ', result.url
+                        soup = get_page_soup(result.url)
+                        # noinspection PyUnresolvedReferences
+                        title = soup.title.string.encode()
+                    except Exception, e:
+                        print e
+                    news_title = NewsTitle(title, public_figure, site,
+                                           result.url, result.title,
+                                           result.desc)
+                    news_titles.append(news_title)
+                save_flag = save_pickle(news_titles, filepath)
+                if save_flag is None:
+                    print 'Save to', filepath, 'failed'
+            else:
+                print 'News Result is already existed'
 
 if __name__ == '__main__':
     main()
