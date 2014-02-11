@@ -1,0 +1,6 @@
+__author__ = 'user'
+__project_name = 'NewsAnalytic'
+__filename = '__init__.py'
+__date__ = '08/02/14'
+__copyright__ = 'imajimatika@gmail.com'
+__doc__ = ''
