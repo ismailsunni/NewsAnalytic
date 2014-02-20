@@ -13,3 +13,7 @@ class NewsTitle:
         self.url = url
         self.short_title = short_title
         self.desc = desc
+        self.site_clean_title = ''
+        self.parsed_words = []
+        self.negation = 0
+        self.sentiment = 0

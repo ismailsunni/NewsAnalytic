@@ -120,6 +120,7 @@ def main():
                         soup = get_page_soup(result.url)
                         # noinspection PyUnresolvedReferences
                         title = soup.title.string.encode()
+                        print title, result.title
                     except Exception, e:
                         print e
                     news_title = NewsTitle(title, public_figure, site,
